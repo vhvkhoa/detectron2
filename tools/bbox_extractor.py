@@ -70,10 +70,10 @@ class BboxExtractor(object):
 
             while len(frame_data):
                 frame = frame_data.popleft()
-                yield self.predictor.get().to('self.cpu_device)
+                yield self.predictor.get().to(self.cpu_device)
         else:
             for frame in frame_gen:
-                yield self.predictor(frame).to('self.cpu_device)
+                yield self.predictor(frame).to(self.cpu_device)
 
 
 class AsyncPredictor:
