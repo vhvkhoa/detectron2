@@ -95,7 +95,7 @@ if __name__ == "__main__":
             classes = instances.pred_classes if instances.has("pred_classes") else None
 
             for box, score, class_id in zip(boxes, scores, classes):
-                if args.captured_class_ids not [] and class_id in args.captured_class_ids:
+                if args.captured_class_ids != [] and class_id in args.captured_class_ids:
                     frame_instances.append({'box': box, 'score': score, 'class_id': class_id})
 
             video_bboxes.append(frame_instances)
