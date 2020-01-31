@@ -72,7 +72,7 @@ if __name__ == "__main__":
 
     cfg = setup_cfg(args)
 
-    for video_path in tqdm.tqdm(glob.glob(os.path.join(args.video_dir, '*'))):
+    for video_path in tqdm.tqdm(glob.glob(os.path.join(args.input_dir, '*'))):
         video = cv2.VideoCapture(video_path)
         width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
