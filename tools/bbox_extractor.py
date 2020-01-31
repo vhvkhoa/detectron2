@@ -66,14 +66,14 @@ class BboxExtractor(object):
 
                 if cnt >= buffer_size:
                     frame = frame_data.popleft()
-                    yield self.predictor.get().to(self.cpu_device)
+                    yield self.predictor.get()['instances'].to(self.cpu_device)
 
             while len(frame_data):
                 frame = frame_data.popleft()
-                yield self.predictor.get().to(self.cpu_device)
+                yield self.predictor.get()['instances'].to(self.cpu_device)
         else:
             for frame in frame_gen:
-                yield self.predictor(frame).to(self.cpu_device)
+                yield self.predictor(frame)['instances'].to(self.cpu_device)
 
 
 class AsyncPredictor:
