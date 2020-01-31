@@ -75,7 +75,7 @@ if __name__ == "__main__":
 
     cfg = setup_cfg(args)
 
-    bbox_extractor = BboxExtractor(cfg)
+    bbox_extractor = BboxExtractor(cfg, parallel=True)
 
     for video_path in tqdm.tqdm(glob.glob(os.path.join(args.input_dir, '*'))):
         video = cv2.VideoCapture(video_path)
