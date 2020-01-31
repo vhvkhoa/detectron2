@@ -86,7 +86,7 @@ if __name__ == "__main__":
         video_instances = []
         for frame_preds in tqdm.tqdm(bbox_extractor.run_on_video(video), total=num_frames):
             frame_instances = []
-            instances = frame_preds['instances'].cpu()
+            instances = frame_preds['instances'].to(torch.device('cpu'))
             
             boxes = instances.pred_boxes if instances.has("pred_boxes") else None
             scores = instances.scores if instances.has("scores") else None
