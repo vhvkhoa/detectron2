@@ -11,6 +11,7 @@ import json
 
 from detectron2.config import get_cfg
 from detectron2.utils.logger import setup_logger
+from bbox_extractor import BboxExtractor
 
 # constants
 WINDOW_NAME = "COCO detections"
@@ -72,6 +73,8 @@ if __name__ == "__main__":
 
     cfg = setup_cfg(args)
 
+    bbox_extractor = BboxExtractor(cfg)
+
     for video_path in tqdm.tqdm(glob.glob(os.path.join(args.input_dir, '*'))):
         video = cv2.VideoCapture(video_path)
         width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -81,7 +84,7 @@ if __name__ == "__main__":
         basename = os.path.basename(video_path)
 
         video_instances = []
-        for frame_preds in tqdm.tqdm(demo.run_on_video(video), total=num_frames):
+        for frame_preds in tqdm.tqdm(bbox_extractor.run_on_video(video), total=num_frames):
             frame_instances = []
             instances = frame_preds['instances'].cpu()
             
