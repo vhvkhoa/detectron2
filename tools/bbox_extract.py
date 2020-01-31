@@ -104,4 +104,4 @@ if __name__ == "__main__":
         if not os.path.isdir(args.output_dir):
             os.makedirs(args.output_dir)
         with open(os.path.join(args.output_dir, os.path.splitext(basename)[0] + '.json'), 'w') as f:
-            json.dump(video_instances, f)
+            json.dump(video_bboxes, f)
