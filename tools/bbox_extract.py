@@ -89,9 +89,9 @@ if __name__ == "__main__":
         for frame_preds in tqdm.tqdm(bbox_extractor.run_on_video(video), total=num_frames):
             frame_bboxes = []
             
-            boxes = frame_preds.pred_boxes if frame_preds.has("pred_boxes") else None
-            scores = frame_preds.scores if frame_preds.has("scores") else None
-            classes = frame_preds.pred_classes if frame_preds.has("pred_classes") else None
+            boxes = frame_preds.pred_boxes.tolist() if frame_preds.has("pred_boxes") else None
+            scores = frame_preds.scores.tolist() if frame_preds.has("scores") else None
+            classes = frame_preds.pred_classes.tolist() if frame_preds.has("pred_classes") else None
 
             for box, score, class_id in zip(boxes, scores, classes):
                 if (not args.captured_class_ids is None) and (class_id not in args.captured_class_ids):
