@@ -35,8 +35,12 @@ def main(args):
 
         for i, process in enumerate(processes):
             if process['command'].poll() is not None:
-                if not osp.exists(osp.join(args.output_dir, osp.splitext(process['video_name'])[0] + '.json')):
+                result_path = osp.join(args.output_dir, osp.splitext(process['video_name'])[0] + '.json')
+                if not osp.exists(result_path):
                     tqdm.write('some error happened at video %s.' % process['video_name'])
+                else:
+                    with open(result_path, 'r') as f:
+                        tqdm.write('Finished video %s. Number of frames: %d' % (process['video_name'],  len(json.load(f))))
                 processes[i]['finished'] = True
 
 
