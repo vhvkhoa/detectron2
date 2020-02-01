@@ -39,18 +39,15 @@ class BboxExtractor(object):
         else:
             self.predictor = DefaultPredictor(cfg)
 
-    def _frame_from_video(self, video, sampling_rate):
-        idx = 0
+    def _frame_from_video(self, video):
         while video.isOpened():
             success, frame = video.read()
             if success:
-                if idx % sampling_rate == 0:
-                    yield frame
+                yield frame
             else:
                 break
-            idx += 1
 
-    def run_on_video(self, video, fps):
+    def run_on_video(self, video, fps, num_frames):
         """
         Visualizes predictions on frames of the input video.
 
@@ -61,27 +58,29 @@ class BboxExtractor(object):
         Yields:
             ndarray: BGR visualizations of each video frame.
         """
-        sampling_rate = self.sampling_rate * fps / self.target_fps
-        frame_gen = self._frame_from_video(video, sampling_rate)
+        target_sampling_rate = self.sampling_rate * fps / self.target_fps
+        frame_gen = self._frame_from_video(video)
         if self.parallel:
             buffer_size = self.predictor.default_buffer_size
 
             frame_data = deque()
 
-            for cnt, frame in enumerate(frame_gen):
-                frame_data.append(frame)
-                self.predictor.put(frame)
+            for idx, frame in enumerate(tqdm(frame_gen, total=num_frames)):
+                if idx % target_sampling_rate == 0:
+                    frame_data.append(frame)
+                    self.predictor.put(frame)
 
-                if cnt >= buffer_size:
-                    frame = frame_data.popleft()
-                    yield self.predictor.get()['instances'].to(self.cpu_device)
+                    if idx >= buffer_size:
+                        frame = frame_data.popleft()
+                        yield self.predictor.get()['instances'].to(self.cpu_device)
 
             while len(frame_data):
                 frame = frame_data.popleft()
                 yield self.predictor.get()['instances'].to(self.cpu_device)
         else:
-            for frame in frame_gen:
-                yield self.predictor(frame)['instances'].to(self.cpu_device)
+            for idx, frame in enumerate(tqdm(frame_gen, total=num_frames)):
+                if idx % target_sampling_rate == 0:
+                    yield self.predictor(frame)['instances'].to(self.cpu_device)
 
 
 class AsyncPredictor:

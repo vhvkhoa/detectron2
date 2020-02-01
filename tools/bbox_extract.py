@@ -4,7 +4,6 @@ import argparse
 import multiprocessing as mp
 import os
 import cv2
-import tqdm
 import json
 import glob
 
@@ -98,7 +97,7 @@ if __name__ == "__main__":
         basename = os.path.basename(video_path)
 
         video_bboxes= []
-        for frame_preds in tqdm.tqdm(bbox_extractor.run_on_video(video, frames_per_second), total=num_frames):
+        for frame_preds in bbox_extractor.run_on_video(video, frames_per_second, num_frames):
             frame_bboxes = []
 
             boxes = frame_preds.pred_boxes.tensor.tolist() if frame_preds.has("pred_boxes") else None
