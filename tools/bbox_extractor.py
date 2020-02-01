@@ -14,7 +14,7 @@ from detectron2.utils.visualizer import ColorMode, Visualizer
 
 
 class BboxExtractor(object):
-    def __init__(self, cfg, instance_mode=ColorMode.IMAGE, parallel=False):
+    def __init__(self, cfg, sampling_rate=8, target_fps=30, instance_mode=ColorMode.IMAGE, parallel=False):
         """
         Args:
             cfg (CfgNode):
@@ -27,6 +27,8 @@ class BboxExtractor(object):
         )
         self.cpu_device = torch.device("cpu")
         self.instance_mode = instance_mode
+        self.target_fps = target_fps
+        self.sampling_rate = sampling_rate
 
         self.parallel = parallel
         if parallel:
@@ -35,15 +37,17 @@ class BboxExtractor(object):
         else:
             self.predictor = DefaultPredictor(cfg)
 
-    def _frame_from_video(self, video):
+    def _frame_from_video(self, video, sampling_rate):
+        idx = 0
         while video.isOpened():
             success, frame = video.read()
-            if success:
+            if success and idx % sampling_rate == 0:
                 yield frame
             else:
                 break
+            idx += 1
 
-    def run_on_video(self, video):
+    def run_on_video(self, video, fps):
         """
         Visualizes predictions on frames of the input video.
 
@@ -54,7 +58,8 @@ class BboxExtractor(object):
         Yields:
             ndarray: BGR visualizations of each video frame.
         """
-        frame_gen = self._frame_from_video(video)
+        sampling_rate = self.sampling_rate * fps / self.target_fps
+        frame_gen = self._frame_from_video(video, sampling_rate)
         if self.parallel:
             buffer_size = self.predictor.default_buffer_size
 

@@ -6,6 +6,7 @@ import os
 import cv2
 import tqdm
 import json
+import glob
 
 import torch
 
@@ -32,7 +33,7 @@ def setup_cfg(args):
 
 def get_parser():
     parser = argparse.ArgumentParser(description="Detectron2 demo for builtin models")
-    parser.add_argument("input", help="A list of space separated input videos")
+    parser.add_argument("input_dir", help="A list of space separated input videos")
     parser.add_argument(
         "output_dir",
         help="A file or directory to save output visualizations. "
@@ -56,6 +57,20 @@ def get_parser():
         help="Minimum score for instance predictions to be shown",
     )
     parser.add_argument(
+        "--sampling-rate",
+        dest="sampling_rate",
+        type=int,
+        default=8,
+        help="Target FPS to extract bboxes",
+    )
+    parser.add_argument(
+        "--target-fps",
+        dest="target_fps",
+        type=int,
+        default=30,
+        help="Target FPS to extract bboxes",
+    )
+    parser.add_argument(
         "--opts",
         help="Modify config options using the command-line 'KEY VALUE' pairs",
         default=[],
@@ -72,36 +87,34 @@ if __name__ == "__main__":
 
     cfg = setup_cfg(args)
 
-    bbox_extractor = BboxExtractor(cfg)
+    bbox_extractor = BboxExtractor(cfg, args.target_fps)
 
-    video_path = args.input
-    assert os.path.exists(video_path), 'Video path should exist.'
+    for video_path in glob.iglob(os.path.join(args.input_dir, '*')):
+        video = cv2.VideoCapture(video_path)
+        width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        frames_per_second = video.get(cv2.CAP_PROP_FPS)
+        num_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
+        basename = os.path.basename(video_path)
 
-    video = cv2.VideoCapture(video_path)
-    width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    frames_per_second = video.get(cv2.CAP_PROP_FPS)
-    num_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
-    basename = os.path.basename(video_path)
+        video_bboxes= []
+        for frame_preds in tqdm.tqdm(bbox_extractor.run_on_video(video, frames_per_second), total=num_frames):
+            frame_bboxes = []
 
-    video_bboxes= []
-    for frame_preds in tqdm.tqdm(bbox_extractor.run_on_video(video), total=num_frames):
-        frame_bboxes = []
-        
-        boxes = frame_preds.pred_boxes.tensor.tolist() if frame_preds.has("pred_boxes") else None
-        scores = frame_preds.scores.tolist() if frame_preds.has("scores") else None
-        classes = frame_preds.pred_classes.tolist() if frame_preds.has("pred_classes") else None
+            boxes = frame_preds.pred_boxes.tensor.tolist() if frame_preds.has("pred_boxes") else None
+            scores = frame_preds.scores.tolist() if frame_preds.has("scores") else None
+            classes = frame_preds.pred_classes.tolist() if frame_preds.has("pred_classes") else None
 
-        for box, score, class_id in zip(boxes, scores, classes):
-            if (not args.captured_class_ids is None) and (class_id not in args.captured_class_ids):
-                continue
-            frame_bboxes.append({'box': box, 'score': score, 'class_id': class_id})
+            for box, score, class_id in zip(boxes, scores, classes):
+                if (not args.captured_class_ids is None) and (class_id not in args.captured_class_ids):
+                    continue
+                frame_bboxes.append({'box': box, 'score': score, 'class_id': class_id})
 
-        video_bboxes.append(frame_bboxes)
+            video_bboxes.append(frame_bboxes)
 
-    video.release()
+        video.release()
 
-    if not os.path.isdir(args.output_dir):
-        os.makedirs(args.output_dir)
-    with open(os.path.join(args.output_dir, os.path.splitext(basename)[0] + '.json'), 'w') as f:
-        json.dump(video_bboxes, f)
+        if not os.path.isdir(args.output_dir):
+            os.makedirs(args.output_dir)
+        with open(os.path.join(args.output_dir, os.path.splitext(basename)[0] + '.json'), 'w') as f:
+            json.dump(video_bboxes, f)
