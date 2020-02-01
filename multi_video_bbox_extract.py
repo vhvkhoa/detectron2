@@ -24,7 +24,7 @@ def main(args):
     while current_video_idx < len(video_path_list):
         for i, process in enumerate(processes):
             if process['finished'] == True:
-                cmd = DEFAULT_CMD.format(video_path, args.output_dir, args.thresh, args.cfg, OPTS)
+                cmd = DEFAULT_CMD.format(video_path_list[current_video_idx], args.output_dir, args.thresh, args.cfg, OPTS)
                 processes[i] = {
                     'video_name': osp.basename(video_path_list[current_video_idx]),
                     'command': Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True),
