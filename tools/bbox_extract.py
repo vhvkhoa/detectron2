@@ -7,6 +7,7 @@ import cv2
 import json
 import glob
 
+from tqdm import tqdm
 import torch
 
 from detectron2.config import get_cfg
