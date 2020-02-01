@@ -24,7 +24,7 @@ def main(args):
                 cmd = DEFAULT_CMD.format(video_path, args.output_dir, args.thresh, args.cfg, OPTS)
                 processes[i] = {
                     'video_name': osp.basename(video_path_list[current_video_idx]),
-                    'command': Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+                    'command': Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True),
                     'finished': False
                 }
                 current_video_idx += 1
