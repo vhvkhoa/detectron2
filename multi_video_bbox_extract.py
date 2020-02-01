@@ -47,7 +47,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         "--config-file",
-        dest='cfg'
+        dest='cfg',
         default="configs/quick_schedules/mask_rcnn_R_50_FPN_inference_acc_test.yaml",
         metavar="FILE",
         help="path to config file",
