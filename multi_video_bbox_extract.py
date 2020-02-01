@@ -17,6 +17,7 @@ def main(args):
     pbar = tqdm.tqdm(total=len(processes))
     current_video_idx = len(processes)
     pbar.update(current_video_idx)
+
     while current_video_idx < len(video_path_list):
         for i, process in enumerate(processes):
             if process['finished'] == True:
@@ -32,7 +33,7 @@ def main(args):
         for i, process in enumerate(processes):
             if process['command'].poll() is not None:
                 if not osp.exists(osp.join(args.output, osp.splitext(process['video_name'])[0] + '.json')):
-                    print('some error happened at video %s.' % process['video_name'])
+                    tqdm.write('some error happened at video %s.' % process['video_name'])
                 processes[i]['finished'] = True
 
 
