@@ -4,6 +4,7 @@ import atexit
 import bisect
 import multiprocessing as mp
 from collections import deque
+from tqdm import tqdm
 import cv2
 import torch
 
