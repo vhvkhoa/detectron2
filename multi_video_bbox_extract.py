@@ -1,4 +1,5 @@
 import os.path as osp
+from shutil import rmtree
 import glob
 from subprocess import Popen, PIPE
 import argparse
