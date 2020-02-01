@@ -98,7 +98,7 @@ if __name__ == "__main__":
         basename = os.path.basename(video_path)
 
         video_bboxes= []
-        for frame_preds in bbox_extractor.run_on_video(video, frames_per_second, num_frames):
+        for frame_preds in bbox_extractor.run_on_video(video, frames_per_second):
             frame_bboxes = []
 
             boxes = frame_preds.pred_boxes.tensor.tolist() if frame_preds.has("pred_boxes") else None
