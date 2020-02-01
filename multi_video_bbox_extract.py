@@ -16,7 +16,7 @@ def main(args):
         'finished': False
     } for i in range(min(args.num_workers, len(video_path_list)))]
 
-    pbar = tqdm.tqdm(total=len(processes))
+    pbar = tqdm.tqdm(total=len(video_path_list))
     current_video_idx = len(processes)
     pbar.update(current_video_idx)
 
