@@ -43,8 +43,9 @@ class BboxExtractor(object):
         idx = 0
         while video.isOpened():
             success, frame = video.read()
-            if success and idx % sampling_rate == 0:
-                yield frame
+            if success:
+                if idx % sampling_rate == 0:
+                    yield frame
             else:
                 break
             idx += 1
