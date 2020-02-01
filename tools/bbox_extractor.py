@@ -30,6 +30,8 @@ class BboxExtractor(object):
         self.target_fps = target_fps
         self.sampling_rate = sampling_rate
 
+        print('Construct bounding box extractor with sampling rate: {0} on fps: {1}' % (self.sampling_rate, self.target_fps))
+
         self.parallel = parallel
         if parallel:
             num_gpu = torch.cuda.device_count()

@@ -87,7 +87,7 @@ if __name__ == "__main__":
 
     cfg = setup_cfg(args)
 
-    bbox_extractor = BboxExtractor(cfg, args.target_fps)
+    bbox_extractor = BboxExtractor(cfg, sampling_rate=args.sampling_rate, target_fps=args.target_fps)
 
     for video_path in glob.iglob(os.path.join(args.input_dir, '*')):
         video = cv2.VideoCapture(video_path)
