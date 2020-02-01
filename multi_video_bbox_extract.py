@@ -3,7 +3,7 @@ from shutil import rmtree
 import glob
 from subprocess import Popen, PIPE
 import argparse
-import tqdm
+from tqdm import tqdm
 
 OPTS = 'MODEL.WEIGHTS model_final_f6e8b1.pkl'
 DEFAULT_CMD = 'python tools/bbox_extract.py {0} {1}  --confidence-threshold {2} --config-file {3} --opts {4}'
@@ -17,7 +17,7 @@ def main(args):
         'finished': False
     } for i in range(min(args.num_workers, len(video_path_list)))]
 
-    pbar = tqdm.tqdm(total=len(video_path_list))
+    pbar = tqdm(total=len(video_path_list))
     current_video_idx = len(processes)
     pbar.update(current_video_idx)
 
