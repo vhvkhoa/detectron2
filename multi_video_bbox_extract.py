@@ -4,6 +4,7 @@ import glob
 from subprocess import Popen, PIPE
 import argparse
 from tqdm import tqdm
+import json
 
 OPTS = 'MODEL.WEIGHTS model_final_f6e8b1.pkl'
 DEFAULT_CMD = 'python tools/bbox_extract.py {0} {1}  --confidence-threshold {2} --config-file {3} --opts {4}'
