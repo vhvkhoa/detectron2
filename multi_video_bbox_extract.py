@@ -14,7 +14,7 @@ def main(args):
         'video_name': osp.basename(video_path_list[i]),
         'command': Popen(
             DEFAULT_CMD.format(video_path_list[i], args.output_dir, args.thresh, args.cfg, OPTS),
-            stdout=PIPE, stderr=PIPE, shell=True),
+            shell=True),
         'finished': False
     } for i in range(min(args.num_workers, len(video_path_list)))]
 
@@ -28,7 +28,7 @@ def main(args):
                 cmd = DEFAULT_CMD.format(video_path_list[current_video_idx], args.output_dir, args.thresh, args.cfg, OPTS)
                 processes[i] = {
                     'video_name': osp.basename(video_path_list[current_video_idx]),
-                    'command': Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True),
+                    'command': Popen(cmd, shell=True),
                     'finished': False
                 }
                 current_video_idx += 1
