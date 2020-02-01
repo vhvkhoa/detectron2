@@ -89,7 +89,7 @@ if __name__ == "__main__":
 
     bbox_extractor = BboxExtractor(cfg, sampling_rate=args.sampling_rate, target_fps=args.target_fps)
 
-    for video_path in tqdm(glob.iglob(os.path.join(args.input_dir, '*'))):
+    for video_path in tqdm(glob.glob(os.path.join(args.input_dir, '*'))):
         video = cv2.VideoCapture(video_path)
         width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
