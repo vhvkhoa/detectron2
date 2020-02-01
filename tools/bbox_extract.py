@@ -7,6 +7,7 @@ import cv2
 import json
 import glob
 
+from tqdm import tqdm
 import torch
 
 from detectron2.config import get_cfg
@@ -52,7 +53,7 @@ def get_parser():
     parser.add_argument(
         "--confidence-threshold",
         type=float,
-        default=0.5,
+        default=0.3,
         help="Minimum score for instance predictions to be shown",
     )
     parser.add_argument(
@@ -88,7 +89,7 @@ if __name__ == "__main__":
 
     bbox_extractor = BboxExtractor(cfg, sampling_rate=args.sampling_rate, target_fps=args.target_fps)
 
-    for video_path in glob.iglob(os.path.join(args.input_dir, '*')):
+    for video_path in tqdm(glob.iglob(os.path.join(args.input_dir, '*'))):
         video = cv2.VideoCapture(video_path)
         width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))

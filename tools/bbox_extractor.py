@@ -4,7 +4,6 @@ import atexit
 import bisect
 import multiprocessing as mp
 from collections import deque
-from tqdm import tqdm
 import cv2
 import torch
 
@@ -48,7 +47,7 @@ class BboxExtractor(object):
             else:
                 break
 
-    def run_on_video(self, video, fps, num_frames):
+    def run_on_video(self, video, fps):
         """
         Visualizes predictions on frames of the input video.
 
@@ -66,7 +65,7 @@ class BboxExtractor(object):
 
             frame_data = deque()
 
-            for idx, frame in enumerate(tqdm(frame_gen, total=num_frames)):
+            for idx, frame in enumerate(frame_gen):
                 if idx % target_sampling_rate == 0:
                     frame_data.append(frame)
                     self.predictor.put(frame)
@@ -79,7 +78,7 @@ class BboxExtractor(object):
                 frame = frame_data.popleft()
                 yield self.predictor.get()['instances'].to(self.cpu_device)
         else:
-            for idx, frame in enumerate(tqdm(frame_gen, total=num_frames)):
+            for idx, frame in enumerate(frame_gen):
                 if idx % target_sampling_rate == 0:
                     yield self.predictor(frame)['instances'].to(self.cpu_device)
 
