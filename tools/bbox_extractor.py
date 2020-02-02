@@ -61,6 +61,7 @@ class BboxExtractor(object):
         secs_per_frame = 1. / fps
         target_sampling_rate = self.sampling_rate * secs_per_frame * fps / self.target_fps
         sampling_secs = torch.arange(target_sampling_rate / 2, (num_frames + 1) * secs_per_frame, target_sampling_rate)
+        print(sampling_secs)
 
         frame_gen = self._frame_from_video(video)
         if self.parallel:
