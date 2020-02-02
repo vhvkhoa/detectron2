@@ -71,7 +71,7 @@ class BboxExtractor(object):
 
             sampling_idx = 0
             for idx, frame in enumerate(frame_gen):
-                if idx * secs_per_frame >= sampling_secs[sampling_idx]:
+                if sampling_idx < len(sampling_secs) and idx * secs_per_frame >= sampling_secs[sampling_idx]:
                     sampling_idx += 1
                     frame_data.append(frame)
                     self.predictor.put(frame)
@@ -86,8 +86,7 @@ class BboxExtractor(object):
         else:
             sampling_idx = 0
             for idx, frame in enumerate(frame_gen):
-                print(idx * secs_per_frame, sampling_secs[sampling_idx])
-                if idx * secs_per_frame >= sampling_secs[sampling_idx]:
+                if sampling_idx < len(sampling_secs) and idx * secs_per_frame >= sampling_secs[sampling_idx]:
                     sampling_idx += 1
                     yield self.predictor(frame)['instances'].to(self.cpu_device)
 
