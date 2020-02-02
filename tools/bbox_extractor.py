@@ -64,7 +64,8 @@ class BboxExtractor(object):
             target_sampling_rate / 2,
             (num_frames + 1) * secs_per_frame - target_sampling_rate / 2,
             target_sampling_rate).tolist()
-        sampling_secs.append((target_sampling_rate * len(sampling_secs) + num_frames * secs_per_frame) / 2)
+        if target_sampling_rate * len(sampling_secs) < num_frames * secs_per_frame:
+            sampling_secs.append((target_sampling_rate * len(sampling_secs) + num_frames * secs_per_frame) / 2)
 
         frame_gen = self._frame_from_video(video)
         if self.parallel:
