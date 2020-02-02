@@ -58,7 +58,7 @@ class BboxExtractor(object):
         Yields:
             ndarray: BGR visualizations of each video frame.
         """
-        target_sampling_rate = self.sampling_rate * fps / self.target_fps
+        target_sampling_rate = round(self.sampling_rate * fps / self.target_fps)
         print(fps, self.target_fps, self.sampling_rate, target_sampling_rate)
         frame_gen = self._frame_from_video(video)
         if self.parallel:
