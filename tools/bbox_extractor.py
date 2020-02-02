@@ -60,10 +60,10 @@ class BboxExtractor(object):
         """
         secs_per_frame = 1. / fps
         target_sampling_rate = self.sampling_rate * secs_per_frame * fps / self.target_fps
-        sampling_secs = range(
+        sampling_secs = torch.arange(
             target_sampling_rate / 2,
             (num_frames + 1) * secs_per_frame - target_sampling_rate / 2,
-            target_sampling_rate)
+            target_sampling_rate).tolist()
         sampling_secs.append((target_sampling_rate * len(sampling_secs) + num_frames * secs_per_frame) / 2)
 
         frame_gen = self._frame_from_video(video)
