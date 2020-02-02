@@ -59,7 +59,7 @@ class BboxExtractor(object):
             ndarray: BGR visualizations of each video frame.
         """
         target_sampling_rate = self.sampling_rate * fps / self.target_fps
-        print(fpt, self.target_fps, self.sampling_rate, target_sampling_rate)
+        print(fps, self.target_fps, self.sampling_rate, target_sampling_rate)
         frame_gen = self._frame_from_video(video)
         if self.parallel:
             buffer_size = self.predictor.default_buffer_size
