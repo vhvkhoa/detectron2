@@ -47,7 +47,7 @@ class BboxExtractor(object):
             else:
                 break
 
-    def run_on_video(self, video, fps):
+    def run_on_video(self, video, num_frames, fps):
         """
         Visualizes predictions on frames of the input video.
 
@@ -58,14 +58,20 @@ class BboxExtractor(object):
         Yields:
             ndarray: BGR visualizations of each video frame.
         """
+        secs_per_frame = 1. / fps
+        target_sampling_rate = self.sampling_rate * secs_per_frame * fps / self.target_fps
+        sampling_secs = torch.arange(target_sampling_rate / 2, (num_frames + 1) * secs_per_frame, target_sampling_rate)
+
         frame_gen = self._frame_from_video(video)
         if self.parallel:
             buffer_size = self.predictor.default_buffer_size
 
             frame_data = deque()
 
+            sampling_idx = 0
             for idx, frame in enumerate(frame_gen):
-                if idx % self.sampling_rate == 0:
+                if idx * secs_per_frame >= sampling_secs[sampling_idx]:
+                    sampling_idx += 1
                     frame_data.append(frame)
                     self.predictor.put(frame)
 
@@ -77,8 +83,10 @@ class BboxExtractor(object):
                 frame = frame_data.popleft()
                 yield self.predictor.get()['instances'].to(self.cpu_device)
         else:
+            sampling_idx = 0
             for idx, frame in enumerate(frame_gen):
-                if idx % self.sampling_rate == 0:
+                if idx * secs_per_frame >= sampling_secs[sampling_idx]:
+                    sampling_idx += 1
                     yield self.predictor(frame)['instances'].to(self.cpu_device)
 
 
