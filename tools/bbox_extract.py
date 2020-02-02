@@ -97,7 +97,7 @@ if __name__ == "__main__":
         num_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
         basename = os.path.basename(video_path)
 
-        video_bboxes= []
+        video_bboxes = []
         for frame_preds in bbox_extractor.run_on_video(video, frames_per_second):
             frame_bboxes = []
 
@@ -106,7 +106,7 @@ if __name__ == "__main__":
             classes = frame_preds.pred_classes.tolist() if frame_preds.has("pred_classes") else None
 
             for box, score, class_id in zip(boxes, scores, classes):
-                if (not args.captured_class_ids is None) and (class_id not in args.captured_class_ids):
+                if (args.captured_class_ids is not None) and (class_id not in args.captured_class_ids):
                     continue
                 frame_bboxes.append({'box': box, 'score': score, 'class_id': class_id})
 
