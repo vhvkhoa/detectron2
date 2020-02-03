@@ -73,20 +73,20 @@ def _assign_colors(instances, _old_instances):
         assert instances[0].mask_rle is not None
         # use mask iou only when box iou is None
         # because box seems good enough
-        rles_old = [x.mask_rle for x in _old_instances]
+        rles_old = [x.mask_rle for x in old_instances]
         rles_new = [x.mask_rle for x in instances]
         ious = mask_util.iou(rles_old, rles_new, is_crowd)
         threshold = 0.5
     else:
-        boxes_old = [x.bbox for x in _old_instances]
+        boxes_old = [x.bbox for x in old_instances]
         boxes_new = [x.bbox for x in instances]
         ious = mask_util.iou(boxes_old, boxes_new, is_crowd)
         threshold = 0.6
     if len(ious) == 0:
-        ious = np.zeros((len(_old_instances), len(instances)), dtype="float32")
+        ious = np.zeros((len(old_instances), len(instances)), dtype="float32")
 
     # Only allow matching instances of the same label:
-    for old_idx, old in enumerate(_old_instances):
+    for old_idx, old in enumerate(old_instances):
         for new_idx, new in enumerate(instances):
             if old.label != new.label:
                 ious[old_idx, new_idx] = 0
@@ -96,7 +96,7 @@ def _assign_colors(instances, _old_instances):
 
     # Try to find match for each old instance:
     extra_instances = []
-    for idx, inst in enumerate(_old_instances):
+    for idx, inst in enumerate(old_instances):
         if max_iou_per_old[idx] > threshold:
             newidx = matched_new_per_old[idx]
             if instances[newidx].color is None:
@@ -112,8 +112,8 @@ def _assign_colors(instances, _old_instances):
     for inst in instances:
         if inst.color is None:
             inst.color = random_color(rgb=True, maximum=1)
-    _old_instances = instances[:] + extra_instances
-    return [d.color for d in instances]
+    old_instances = instances[:] + extra_instances
+    return [d.color for d in instances], old_instances
 
 
 def setup_cfg(args):
@@ -201,7 +201,7 @@ if __name__ == "__main__":
                 isColor=True,
             )
 
-            bbox_idx = 0
+            bbox_idx, old_instances = 0, []
             for frame_idx in range(num_frames):
                 frame_idx_secs = frame_idx * secs_per_frame
                 _, frame = video_input.read()
@@ -222,7 +222,7 @@ if __name__ == "__main__":
                     _DetectedInstance(bbox['class_id'], bbox['box'], mask_rle=None, color=None, ttl=8)
                     for bbox in video_bboxes[bbox_idx]['bboxes']
                 ]
-                colors = _assign_colors(detected)
+                colors, old_isntances = _assign_colors(detected, old_instances)
 
                 labels = _create_text_labels(classes, scores, metadata.get("thing_classes", None))
 
