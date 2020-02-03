@@ -3,6 +3,7 @@ import json
 import argparse
 from glob import glob
 
+from detectron2.config import get_cfg
 from detectron2.data import MetadataCatalog
 
 
