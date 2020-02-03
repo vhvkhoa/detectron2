@@ -1,5 +1,6 @@
 import os
 import json
+import argparse
 from glob import glob
 
 from detectron2.data import MetadataCatalog
@@ -95,8 +96,12 @@ if __name__ == "__main__":
             num_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
             secs_per_frame = 1. / frames_per_second
 
+            video_output_path = os.path.join(args.output_dir, os.path.relpath(video_path[0], start=args.video_dir))
+            if not os.path.isdir(os.path.dirname(video_output_path)):
+                os.makedirs(os.path.dirname(video_output_path))
+
             video_output = cv2.VideoWriter(
-                filename=os.path.join(args.output_dir, os.path.relpath(video_path[0], start=args.video_dir)),
+                filename=video_output_path,
                 # some installation of opencv may not support x264 (due to its license),
                 # you can try other format (e.g. MPEG)
                 fourcc=cv2.VideoWriter_fourcc(*"x264"),
