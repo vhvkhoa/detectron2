@@ -234,15 +234,13 @@ if __name__ == "__main__":
 
                     labels = _create_text_labels(classes, scores, metadata.get("thing_classes", None))
 
-                    '''
                     keep_ids = []
                     for i, label in enumerate(labels):
-                        if label.split() == 'person':
+                        if label.split()[0] == 'person':
                             keep_ids.append(i)
 
                     labels = [labels[i] for i in keep_ids]
                     boxes = [boxes[i] for i in keep_ids]
-                    '''
 
                     frame_visualizer.overlay_instances(
                         boxes=boxes,  # boxes are a bit distracting
