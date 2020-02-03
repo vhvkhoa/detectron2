@@ -90,6 +90,7 @@ if __name__ == "__main__":
     bbox_extractor = BboxExtractor(cfg, sampling_rate=args.sampling_rate, target_fps=args.target_fps)
 
     for video_path in tqdm(glob.glob(os.path.join(args.input_dir, '*'))):
+        basename = os.path.basename(video_path)
         output_path = os.path.join(args.output_dir, os.path.splitext(basename)[0] + '.json')
         if os.path.exists(output_path):
             continue
@@ -99,7 +100,6 @@ if __name__ == "__main__":
         height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
         frames_per_second = video.get(cv2.CAP_PROP_FPS)
         num_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
-        basename = os.path.basename(video_path)
 
         video_bboxes = []
         for frame_preds in bbox_extractor.run_on_video(video, num_frames, frames_per_second):
