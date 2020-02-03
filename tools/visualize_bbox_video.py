@@ -138,8 +138,6 @@ if __name__ == "__main__":
                 isColor=True,
             )
 
-            video_visualizer = VideoVisualizer(metadata, self.instance_mode)
-
             bbox_idx = 0
             for frame_idx in range(num_frames):
                 frame_idx_secs = frame_idx * secs_per_frame
