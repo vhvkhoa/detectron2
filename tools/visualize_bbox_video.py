@@ -206,7 +206,10 @@ if __name__ == "__main__":
             bbox_idx, old_instances = 0, []
             for frame_idx in tqdm(range(num_frames)):
                 frame_idx_secs = frame_idx * secs_per_frame
-                _, frame = video_input.read()
+                success, frame = video_input.read()
+                if not success:
+                    continue
+
                 frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
                 frame_visualizer = Visualizer(frame, metadata)
