@@ -58,7 +58,7 @@ def _create_text_labels(classes, scores, class_names):
     return labels
 
 
-def _assign_colors(instances, _old_instances):
+def _assign_colors(instances, old_instances):
     """
     Naive tracking heuristics to assign same color to the same instance,
     will update the internal state of tracked instances.
