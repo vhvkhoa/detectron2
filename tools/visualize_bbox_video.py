@@ -113,6 +113,7 @@ if __name__ == "__main__":
                 video_bboxes = json.load(f)['bboxes']
 
             video_path = glob(os.path.join(args.video_dir, os.path.relpath(root, start=args.bbox_dir), os.path.splitext(file_name)[0] + '.*'))
+            print(video_path)
             assert len(video_path) == 0, 'There exists more than one video path.'
 
             video = cv2.VideoCapture(video_path[0])
