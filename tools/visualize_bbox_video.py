@@ -96,7 +96,7 @@ if __name__ == "__main__":
             secs_per_frame = 1. / frames_per_second
 
             video_output = cv2.VideoWriter(
-                filename=video_path[0],
+                filename=os.path.join(args.output_dir, os.path.relpath(video_path[0], start=args.video_dir)),
                 # some installation of opencv may not support x264 (due to its license),
                 # you can try other format (e.g. MPEG)
                 fourcc=cv2.VideoWriter_fourcc(*"x264"),
