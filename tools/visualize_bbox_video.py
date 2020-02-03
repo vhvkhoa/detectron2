@@ -207,7 +207,7 @@ if __name__ == "__main__":
                 _, frame = video_input.read()
                 frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
-                if bbox_idx < len(video_bboxes):
+                if bbox_idx < len(video_bboxes) - 1:
                     start, end = video_bboxes[bbox_idx]['idx_secs'], video_bboxes[bbox_idx + 1]['idx_secs']
                     if frame_idx_secs >= (start + end) / 2:
                         bbox_idx += 1
