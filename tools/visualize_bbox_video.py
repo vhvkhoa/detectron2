@@ -207,40 +207,42 @@ if __name__ == "__main__":
                 _, frame = video_input.read()
                 frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
+                frame_visualizer = Visualizer(frame, metadata)
+
                 if bbox_idx < len(video_bboxes) - 1:
                     start, end = video_bboxes[bbox_idx]['idx_secs'], video_bboxes[bbox_idx + 1]['idx_secs']
                     if frame_idx_secs >= (start + end) / 2:
                         bbox_idx += 1
 
-                boxes, classes, scores = [], [], []
-                for frame_bbox in video_bboxes[bbox_idx]['bboxes']:
-                    boxes.append(frame_bbox['box'])
-                    classes.append(frame_bbox['class_id'])
-                    scores.append(frame_bbox['score'])
+                if len(video_bboxes[bbox_idx]['bboxes']) > 0:
+                    boxes, classes, scores = [], [], []
+                    for frame_bbox in video_bboxes[bbox_idx]['bboxes']:
+                        boxes.append(frame_bbox['box'])
+                        classes.append(frame_bbox['class_id'])
+                        scores.append(frame_bbox['score'])
 
-                detected = [
-                    _DetectedInstance(bbox['class_id'], bbox['box'], mask_rle=None, color=None, ttl=8)
-                    for bbox in video_bboxes[bbox_idx]['bboxes']
-                ]
-                colors, old_isntances = _assign_colors(detected, old_instances)
+                    detected = [
+                        _DetectedInstance(bbox['class_id'], bbox['box'], mask_rle=None, color=None, ttl=8)
+                        for bbox in video_bboxes[bbox_idx]['bboxes']
+                    ]
+                    colors, old_isntances = _assign_colors(detected, old_instances)
 
-                labels = _create_text_labels(classes, scores, metadata.get("thing_classes", None))
+                    labels = _create_text_labels(classes, scores, metadata.get("thing_classes", None))
 
-                keep_ids = []
-                for i, label in enumerate(labels):
-                    if label.split() == 'person':
-                        keep_ids.append(i)
+                    keep_ids = []
+                    for i, label in enumerate(labels):
+                        if label.split() == 'person':
+                            keep_ids.append(i)
 
-                labels = [labels[i] for i in keep_ids]
-                boxes = [boxes[i] for i in keep_ids]
+                    labels = [labels[i] for i in keep_ids]
+                    boxes = [boxes[i] for i in keep_ids]
 
-                frame_visualizer = Visualizer(frame, metadata)
-                frame_visualizer.overlay_instances(
-                    boxes=boxes,  # boxes are a bit distracting
-                    labels=labels,
-                    assigned_colors=colors,
-                    alpha=alpha,
-                )
+                    frame_visualizer.overlay_instances(
+                        boxes=boxes,  # boxes are a bit distracting
+                        labels=labels,
+                        assigned_colors=colors,
+                        alpha=alpha,
+                    )
 
                 vis_frame = cv2.cvtColor(frame_visualizer.output.get_image(), cv2.COLOR_RGB2BGR)
                 video_output.write(vis_frame)
