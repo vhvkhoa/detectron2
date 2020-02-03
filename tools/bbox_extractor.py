@@ -84,24 +84,28 @@ class BboxExtractor(object):
 
             sampling_idx = 0
             for idx, frame in enumerate(frame_gen):
-                if sampling_idx < len(sampling_secs) and idx * secs_per_frame >= sampling_secs[sampling_idx]:
+                idx_secs = idx * secs_per_frame
+
+                if sampling_idx < len(sampling_secs) and idx_secs >= sampling_secs[sampling_idx]:
                     sampling_idx += 1
-                    frame_data.append(frame)
+                    frame_data.append((idx_secs, frame))
                     self.predictor.put(frame)
 
                     if idx >= buffer_size:
-                        frame = frame_data.popleft()
-                        yield self.predictor.get()['instances'].to(self.cpu_device)
+                        idx_secs, frame = frame_data.popleft()
+                        yield idx_secs, self.predictor.get()['instances'].to(self.cpu_device)
 
             while len(frame_data):
-                frame = frame_data.popleft()
-                yield self.predictor.get()['instances'].to(self.cpu_device)
+                idx_secs, frame = frame_data.popleft()
+                yield idx_secs, self.predictor.get()['instances'].to(self.cpu_device)
         else:
             sampling_idx = 0
             for idx, frame in enumerate(frame_gen):
-                if sampling_idx < len(sampling_secs) and idx * secs_per_frame >= sampling_secs[sampling_idx]:
+                idx_secs = idx * secs_per_frame
+
+                if sampling_idx < len(sampling_secs) and idx_secs >= sampling_secs[sampling_idx]:
                     sampling_idx += 1
-                    yield self.predictor(frame)['instances'].to(self.cpu_device)
+                    yield idx_secs, self.predictor(frame)['instances'].to(self.cpu_device)
 
 
 class AsyncPredictor:
