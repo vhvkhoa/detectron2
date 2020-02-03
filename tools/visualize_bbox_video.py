@@ -174,8 +174,8 @@ if __name__ == "__main__":
     alpha = 0.5
 
     for root, _, file_names in os.walk(args.bbox_dir):
-        for file_name in file_names:
-            print('Processing video %s.' % file_name)
+        for file_idx, file_name in enumerate(file_names):
+            print('Processing video %s. Video number %d/%d' % (file_name, file_idx + 1, len(file_names)))
             with open(os.path.join(root, file_name), 'r') as f:
                 video_bboxes = json.load(f)['bboxes']
 
