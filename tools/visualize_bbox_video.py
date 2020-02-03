@@ -74,6 +74,7 @@ def get_parser():
         nargs='+',
         help="Class names list corresponding with captured class ids, must be at the same length as captured_class_ids."
     )
+    return parser
 
 
 if __name__ == "__main__":
