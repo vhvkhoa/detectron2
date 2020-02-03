@@ -5,6 +5,7 @@ from glob import glob
 
 import cv2
 import numpy as np
+from tqdm import tqdm
 
 from detectron2.config import get_cfg
 from detectron2.data import MetadataCatalog
