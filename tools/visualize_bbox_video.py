@@ -4,10 +4,14 @@ import argparse
 from glob import glob
 
 import cv2
+import numpy as np
 
 from detectron2.config import get_cfg
 from detectron2.data import MetadataCatalog
+from detectron2.utils.colormap import random_color
+from detectron2.utils.visualizer import Visualizer
 
+import pycocotools.mask as mask_util
 
 class _DetectedInstance:
     """
@@ -52,6 +56,65 @@ def _create_text_labels(classes, scores, class_names):
         else:
             labels = ["{} {:.0f}%".format(l, s * 100) for l, s in zip(labels, scores)]
     return labels
+
+
+def _assign_colors(instances, _old_instances):
+    """
+    Naive tracking heuristics to assign same color to the same instance,
+    will update the internal state of tracked instances.
+
+    Returns:
+        list[tuple[float]]: list of colors.
+    """
+
+    # Compute iou with either boxes or masks:
+    is_crowd = np.zeros((len(instances),), dtype=np.bool)
+    if instances[0].bbox is None:
+        assert instances[0].mask_rle is not None
+        # use mask iou only when box iou is None
+        # because box seems good enough
+        rles_old = [x.mask_rle for x in _old_instances]
+        rles_new = [x.mask_rle for x in instances]
+        ious = mask_util.iou(rles_old, rles_new, is_crowd)
+        threshold = 0.5
+    else:
+        boxes_old = [x.bbox for x in _old_instances]
+        boxes_new = [x.bbox for x in instances]
+        ious = mask_util.iou(boxes_old, boxes_new, is_crowd)
+        threshold = 0.6
+    if len(ious) == 0:
+        ious = np.zeros((len(_old_instances), len(instances)), dtype="float32")
+
+    # Only allow matching instances of the same label:
+    for old_idx, old in enumerate(_old_instances):
+        for new_idx, new in enumerate(instances):
+            if old.label != new.label:
+                ious[old_idx, new_idx] = 0
+
+    matched_new_per_old = np.asarray(ious).argmax(axis=1)
+    max_iou_per_old = np.asarray(ious).max(axis=1)
+
+    # Try to find match for each old instance:
+    extra_instances = []
+    for idx, inst in enumerate(_old_instances):
+        if max_iou_per_old[idx] > threshold:
+            newidx = matched_new_per_old[idx]
+            if instances[newidx].color is None:
+                instances[newidx].color = inst.color
+                continue
+        # If an old instance does not match any new instances,
+        # keep it for the next frame in case it is just missed by the detector
+        inst.ttl -= 1
+        if inst.ttl > 0:
+            extra_instances.append(inst)
+
+    # Assign random color to newly-detected instances:
+    for inst in instances:
+        if inst.color is None:
+            inst.color = random_color(rgb=True, maximum=1)
+    _old_instances = instances[:] + extra_instances
+    return [d.color for d in instances]
+
 
 def setup_cfg(args):
     # load config from file and command-line arguments
@@ -117,11 +180,11 @@ if __name__ == "__main__":
             video_path = glob(os.path.join(args.video_dir, os.path.relpath(root, start=args.bbox_dir), os.path.splitext(file_name)[0] + '.*'))
             assert len(video_path) == 1, 'There exists more than one video path.'
 
-            video = cv2.VideoCapture(video_path[0])
-            width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
-            height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
-            frames_per_second = video.get(cv2.CAP_PROP_FPS)
-            num_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
+            video_input = cv2.VideoCapture(video_path[0])
+            width = int(video_input.get(cv2.CAP_PROP_FRAME_WIDTH))
+            height = int(video_input.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            frames_per_second = video_input.get(cv2.CAP_PROP_FPS)
+            num_frames = int(video_input.get(cv2.CAP_PROP_FRAME_COUNT))
             secs_per_frame = 1. / frames_per_second
 
             video_output_path = os.path.join(args.output_dir, os.path.relpath(video_path[0], start=args.video_dir))
@@ -141,17 +204,17 @@ if __name__ == "__main__":
             bbox_idx = 0
             for frame_idx in range(num_frames):
                 frame_idx_secs = frame_idx * secs_per_frame
-                _, frame = video.read()
+                _, frame = video_input.read()
                 frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-                
+
                 if bbox_idx < len(video_bboxes):
                     start, end = video_bboxes[bbox_idx]['idx_secs'], video_bboxes[bbox_idx + 1]['idx_secs']
                     if frame_idx_secs >= (start + end) / 2:
                         bbox_idx += 1
 
-                bboxes, classes, scores = [], [], []
+                boxes, classes, scores = [], [], []
                 for frame_bbox in video_bboxes[bbox_idx]['bboxes']:
-                    bboxes.append(frame_bbox['box'])
+                    boxes.append(frame_bbox['box'])
                     classes.append(frame_bbox['class_id'])
                     scores.append(frame_bbox['score'])
 
@@ -159,18 +222,18 @@ if __name__ == "__main__":
                     _DetectedInstance(bbox['class_id'], bbox['box'], mask_rle=None, color=None, ttl=8)
                     for bbox in video_bboxes[bbox_idx]['bboxes']
                 ]
-                colors = self._assign_colors(detected)
+                colors = _assign_colors(detected)
 
-                labels = _create_text_labels(classes, scores, self.metadata.get("thing_classes", None))
+                labels = _create_text_labels(classes, scores, metadata.get("thing_classes", None))
 
                 keep_ids = []
                 for i, label in enumerate(labels):
                     if label.split() == 'person':
                         keep_ids.append(i)
-                
+
                 labels = [labels[i] for i in keep_ids]
-                bboxes= [bboxes[i] for i in keep_ids]
-                
+                boxes = [boxes[i] for i in keep_ids]
+
                 frame_visualizer = Visualizer(frame, metadata)
                 frame_visualizer.overlay_instances(
                     boxes=boxes,  # boxes are a bit distracting
