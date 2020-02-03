@@ -60,10 +60,19 @@ class BboxExtractor(object):
         """
         secs_per_frame = 1. / fps
         target_sampling_rate = self.sampling_rate * secs_per_frame * fps / self.target_fps
-        sampling_secs = torch.arange(
-            target_sampling_rate / 2,
-            (num_frames + 1) * secs_per_frame - target_sampling_rate / 2,
-            target_sampling_rate).tolist()
+        try:
+            sampling_secs = torch.arange(
+                target_sampling_rate / 2,
+                (num_frames + 1) * secs_per_frame - target_sampling_rate / 2,
+                target_sampling_rate).tolist()
+        except RuntimeError:
+            print(
+                'Cannot make sampling list.' +
+                '\n\tVideo length: %f secs.' +
+                '\n\tTarget_sampling_rate: %f secs.'
+                % (num_frames * secs_per_frame, target_sampling_rate))
+            sampling_secs = []
+
         if target_sampling_rate * len(sampling_secs) < num_frames * secs_per_frame:
             sampling_secs.append((target_sampling_rate * len(sampling_secs) + num_frames * secs_per_frame) / 2)
 
