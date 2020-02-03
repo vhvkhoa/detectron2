@@ -67,9 +67,7 @@ class BboxExtractor(object):
                 target_sampling_rate).tolist()
         except RuntimeError:
             print(
-                'Cannot make sampling list.' +
-                '\n\tVideo length: %f secs.' +
-                '\n\tTarget_sampling_rate: %f secs.'
+                'Cannot make sampling list.\n\tVideo length: %f secs.\n\tTarget_sampling_rate: %f secs.'
                 % (num_frames * secs_per_frame, target_sampling_rate))
             sampling_secs = []
 
