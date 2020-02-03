@@ -174,6 +174,7 @@ if __name__ == "__main__":
 
     for root, _, file_names in os.walk(args.bbox_dir):
         for file_name in file_names:
+            print('Processing video %s.' % file_name)
             with open(os.path.join(root, file_name), 'r') as f:
                 video_bboxes = json.load(f)['bboxes']
 
@@ -202,7 +203,7 @@ if __name__ == "__main__":
             )
 
             bbox_idx, old_instances = 0, []
-            for frame_idx in range(num_frames):
+            for frame_idx in tqdm(range(num_frames)):
                 frame_idx_secs = frame_idx * secs_per_frame
                 _, frame = video_input.read()
                 frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
