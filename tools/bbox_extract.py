@@ -114,7 +114,7 @@ if __name__ == "__main__":
                     continue
                 frame_bboxes.append({'box': box, 'score': score, 'class_id': class_id})
 
-            video_bboxes.append({'idx_secs': idx_secs, 'bboxes': frame_bboxes})
+            video_bboxes.append({'idx_secs': idx_secs, 'frame_bboxes': frame_bboxes})
 
         video.release()
 
@@ -123,7 +123,6 @@ if __name__ == "__main__":
         with open(output_path, 'w') as f:
             json.dump({
                 'num_frames': num_frames,
-                'width': width,
-                'height': height,
-                'bboxes': video_bboxes
+                'secs_per_frame': 1. / frames_per_second,
+                'video_bboxes': video_bboxes
             }, f)
