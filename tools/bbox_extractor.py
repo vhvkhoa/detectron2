@@ -40,7 +40,7 @@ class BboxExtractor(object):
             self.predictor = DefaultPredictor(cfg)
 
     def _frame_from_video(self, video, num_frames):
-        for frame_idx in num_frames:
+        for frame_idx in range(num_frames):
             success, frame = video.read()
             if success:
                 yield frame
