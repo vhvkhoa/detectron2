@@ -59,20 +59,20 @@ class BboxExtractor(object):
             ndarray: BGR visualizations of each video frame.
         """
         secs_per_frame = 1. / fps
-        target_sampling_rate = self.sampling_rate * secs_per_frame * fps / self.target_fps
+        target_sampling_rate = self.sampling_rate * fps / self.target_fps
         try:
-            sampling_secs = torch.arange(
+            sampling_pts = torch.arange(
                 target_sampling_rate / 2,
-                (num_frames + 1) * secs_per_frame - target_sampling_rate / 2,
+                num_frames + 1 - target_sampling_rate / 2,
                 target_sampling_rate).tolist()
         except RuntimeError:
             print(
-                'Cannot make sampling list.\n\tVideo length: %f secs.\n\tTarget_sampling_rate: %f secs.'
-                % (num_frames * secs_per_frame, target_sampling_rate))
-            sampling_secs = []
+                'Cannot make sampling list.\n\tVideo length: %f frames.\n\tTarget_sampling_rate: %f frames.'
+                % (num_frames, target_sampling_rate))
+            sampling_pts = []
 
-        if target_sampling_rate * len(sampling_secs) < num_frames * secs_per_frame:
-            sampling_secs.append((target_sampling_rate * len(sampling_secs) + num_frames * secs_per_frame) / 2)
+        if target_sampling_rate * len(sampling_pts) < num_frames:
+            sampling_pts.append((target_sampling_rate + num_frames) / 2)
 
         frame_gen = self._frame_from_video(video)
         if self.parallel:
@@ -82,28 +82,24 @@ class BboxExtractor(object):
 
             sampling_idx = 0
             for idx, frame in enumerate(frame_gen):
-                idx_secs = idx * secs_per_frame
-
-                if sampling_idx < len(sampling_secs) and idx_secs >= sampling_secs[sampling_idx]:
+                if sampling_idx < len(sampling_secs) and idx >= sampling_pts[sampling_idx]:
                     sampling_idx += 1
-                    frame_data.append((idx_secs, frame))
+                    frame_data.append((idx, frame))
                     self.predictor.put(frame)
 
                     if idx >= buffer_size:
-                        idx_secs, frame = frame_data.popleft()
-                        yield idx_secs, self.predictor.get()['instances'].to(self.cpu_device)
+                        idx, frame = frame_data.popleft()
+                        yield idx, self.predictor.get()['instances'].to(self.cpu_device)
 
             while len(frame_data):
-                idx_secs, frame = frame_data.popleft()
-                yield idx_secs, self.predictor.get()['instances'].to(self.cpu_device)
+                idx, frame = frame_data.popleft()
+                yield idx, self.predictor.get()['instances'].to(self.cpu_device)
         else:
             sampling_idx = 0
             for idx, frame in enumerate(frame_gen):
-                idx_secs = idx * secs_per_frame
-
-                if sampling_idx < len(sampling_secs) and idx_secs >= sampling_secs[sampling_idx]:
+                if sampling_idx < len(sampling_pts) and idx >= sampling_pts[sampling_idx]:
                     sampling_idx += 1
-                    yield idx_secs, self.predictor(frame)['instances'].to(self.cpu_device)
+                    yield idx, self.predictor(frame)['instances'].to(self.cpu_device)
 
 
 class AsyncPredictor:
