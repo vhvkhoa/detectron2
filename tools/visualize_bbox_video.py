@@ -177,7 +177,7 @@ if __name__ == "__main__":
         for file_idx, file_name in enumerate(file_names):
             print('Processing video %s. Video number %d/%d' % (file_name, file_idx + 1, len(file_names)))
             with open(os.path.join(root, file_name), 'r') as f:
-                video_bboxes = json.load(f)['bboxes']
+                video_bboxes = json.load(f)['video_bboxes']
 
             video_path = glob(os.path.join(args.video_dir, os.path.relpath(root, start=args.bbox_dir), os.path.splitext(file_name)[0] + '.*'))
             assert len(video_path) == 1, 'There exists more than one video path.'
@@ -219,18 +219,18 @@ if __name__ == "__main__":
                     if frame_idx_secs >= (start + end) / 2:
                         bbox_idx += 1
 
-                if len(video_bboxes[bbox_idx]['bboxes']) > 0:
+                if len(video_bboxes[bbox_idx]['frame_bboxes']) > 0:
                     boxes, classes, scores = [], [], []
-                    for frame_bbox in video_bboxes[bbox_idx]['bboxes']:
+                    for frame_bbox in video_bboxes[bbox_idx]['frame_bboxes']:
                         boxes.append(frame_bbox['box'])
                         classes.append(frame_bbox['class_id'])
                         scores.append(frame_bbox['score'])
 
                     detected = [
                         _DetectedInstance(bbox['class_id'], bbox['box'], mask_rle=None, color=None, ttl=8)
-                        for bbox in video_bboxes[bbox_idx]['bboxes']
+                        for bbox in video_bboxes[bbox_idx]['frame_bboxes']
                     ]
-                    colors, old_isntances = _assign_colors(detected, old_instances)
+                    colors, old_instances = _assign_colors(detected, old_instances)
 
                     labels = _create_text_labels(classes, scores, metadata.get("thing_classes", None))
 
