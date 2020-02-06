@@ -39,13 +39,13 @@ class BboxExtractor(object):
         else:
             self.predictor = DefaultPredictor(cfg)
 
-    def _frame_from_video(self, video):
-        while video.isOpened():
+    def _frame_from_video(self, video, num_frames):
+        for frame_idx in num_frames:
             success, frame = video.read()
             if success:
                 yield frame
             else:
-                break
+                yield None
 
     def run_on_video(self, video, num_frames, fps):
         """
@@ -74,14 +74,17 @@ class BboxExtractor(object):
         if target_sampling_rate * len(sampling_pts) < num_frames:
             sampling_pts.append((target_sampling_rate + num_frames) / 2)
 
-        frame_gen = self._frame_from_video(video)
+        frame_gen = self._frame_from_video(video, num_frames)
         if self.parallel:
             buffer_size = self.predictor.default_buffer_size
 
             frame_data = deque()
 
-            sampling_idx = 0
+            sampling_idx, fails_count = 0, 0
             for idx, frame in enumerate(frame_gen):
+                if frame == None:
+                    fails_count += 1
+
                 if sampling_idx < len(sampling_secs) and idx >= sampling_pts[sampling_idx]:
                     sampling_idx += 1
                     frame_data.append((idx, frame))
@@ -90,6 +93,9 @@ class BboxExtractor(object):
                     if idx >= buffer_size:
                         idx, frame = frame_data.popleft()
                         yield idx, self.predictor.get()['instances'].to(self.cpu_device)
+            
+            if fails_count != 0:
+                print('Failed to read %d frames.' % fails_count)
 
             while len(frame_data):
                 idx, frame = frame_data.popleft()
