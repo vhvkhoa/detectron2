@@ -75,8 +75,8 @@ class BboxExtractor(object):
 
             frame_data = deque()
 
-            sampling_idx, fails_count = 0, 0
-            for idx, frame in enumerate(frame_gen):
+            idx, sampling_idx, fails_count = 0, 0, 0
+            for frame in frame_gen:
                 if frame is None:
                     fails_count += 1
                     continue
@@ -89,33 +89,28 @@ class BboxExtractor(object):
                     if idx >= buffer_size:
                         idx, frame = frame_data.popleft()
                         yield idx, self.predictor.get()['instances'].to(self.cpu_device)
+                idx += 1
 
             if fails_count != 0:
-                print('Failed to read %d frames.' % fails_count)
+                print('Failed to read %d/%d frames.' % (fails_count, num_frames))
 
             while len(frame_data):
                 idx, frame = frame_data.popleft()
                 yield idx, self.predictor.get()['instances'].to(self.cpu_device)
         else:
-            sampling_idx, fails_count = 0, 0
-            for idx, frame in enumerate(frame_gen):
+            idx, sampling_idx, fails_count = 0, 0, 0
+            for frame in frame_gen:
                 if frame is None:
-                    print(frame)
                     fails_count += 1
+                    continue
 
                 if sampling_idx < len(sampling_pts) and idx >= sampling_pts[sampling_idx]:
                     sampling_idx += 1
-
-                    if frame is None:
-                        instances = self.predictor(frame)['instances'].to(self.cpu_device)
-                        print(frame)
-                        print(instances)
-                    else:
-                        instances = self.predictor(frame)['instances'].to(self.cpu_device)
-                    yield idx, instances
+                    yield idx, self.predictor(frame)['instances'].to(self.cpu_device)
+                idx += 1
 
             if fails_count != 0:
-                print('Failed to read %d frames.' % fails_count)
+                print('Failed to read %d/%d frames.' % (fails_count, num_frames))
 
 
 
