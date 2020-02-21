@@ -4,17 +4,14 @@ import atexit
 import bisect
 import multiprocessing as mp
 from collections import deque
-import cv2
 import torch
 
 from detectron2.data import MetadataCatalog
 from detectron2.engine.defaults import DefaultPredictor
-from detectron2.utils.video_visualizer import VideoVisualizer
-from detectron2.utils.visualizer import ColorMode, Visualizer
 
 
 class BboxExtractor(object):
-    def __init__(self, cfg, sampling_rate=8, target_fps=30, instance_mode=ColorMode.IMAGE, parallel=False):
+    def __init__(self, cfg, sampling_rate=8, target_fps=30, parallel=False):
         """
         Args:
             cfg (CfgNode):
@@ -26,7 +23,6 @@ class BboxExtractor(object):
             cfg.DATASETS.TEST[0] if len(cfg.DATASETS.TEST) else "__unused"
         )
         self.cpu_device = torch.device("cpu")
-        self.instance_mode = instance_mode
         self.target_fps = target_fps
         self.sampling_rate = sampling_rate
 
@@ -58,7 +54,6 @@ class BboxExtractor(object):
         Yields:
             ndarray: BGR visualizations of each video frame.
         """
-        secs_per_frame = 1. / fps
         target_sampling_rate = self.sampling_rate * fps / self.target_fps
         try:
             sampling_pts = torch.arange(
@@ -82,10 +77,11 @@ class BboxExtractor(object):
 
             sampling_idx, fails_count = 0, 0
             for idx, frame in enumerate(frame_gen):
-                if frame == None:
+                if frame is None:
                     fails_count += 1
+                    continue
 
-                if sampling_idx < len(sampling_secs) and idx >= sampling_pts[sampling_idx]:
+                if sampling_idx < len(sampling_pts) and idx >= sampling_pts[sampling_idx]:
                     sampling_idx += 1
                     frame_data.append((idx, frame))
                     self.predictor.put(frame)
@@ -93,7 +89,7 @@ class BboxExtractor(object):
                     if idx >= buffer_size:
                         idx, frame = frame_data.popleft()
                         yield idx, self.predictor.get()['instances'].to(self.cpu_device)
-            
+
             if fails_count != 0:
                 print('Failed to read %d frames.' % fails_count)
 
@@ -101,11 +97,18 @@ class BboxExtractor(object):
                 idx, frame = frame_data.popleft()
                 yield idx, self.predictor.get()['instances'].to(self.cpu_device)
         else:
-            sampling_idx = 0
+            sampling_idx, fails_count = 0, 0
             for idx, frame in enumerate(frame_gen):
+                if frame is None:
+                    fails_count += 1
+
                 if sampling_idx < len(sampling_pts) and idx >= sampling_pts[sampling_idx]:
                     sampling_idx += 1
                     yield idx, self.predictor(frame)['instances'].to(self.cpu_device)
+
+            if fails_count != 0:
+                print('Failed to read %d frames.' % fails_count)
+
 
 
 class AsyncPredictor:
