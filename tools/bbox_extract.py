@@ -102,7 +102,7 @@ if __name__ == "__main__":
         num_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
 
         video_bboxes = []
-        for idx_secs, frame_preds in bbox_extractor.run_on_video(video, num_frames, frames_per_second):
+        for idx, frame_preds in bbox_extractor.run_on_video(video, num_frames, frames_per_second):
             frame_bboxes = []
 
             boxes = frame_preds.pred_boxes.tensor.tolist() if frame_preds.has("pred_boxes") else None
@@ -114,7 +114,7 @@ if __name__ == "__main__":
                     continue
                 frame_bboxes.append({'box': box, 'score': score, 'class_id': class_id})
 
-            video_bboxes.append({'idx_secs': idx_secs, 'frame_bboxes': frame_bboxes})
+            video_bboxes.append({'idx': idx, 'frame_bboxes': frame_bboxes})
 
         video.release()
 
