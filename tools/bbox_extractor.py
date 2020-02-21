@@ -104,7 +104,11 @@ class BboxExtractor(object):
 
                 if sampling_idx < len(sampling_pts) and idx >= sampling_pts[sampling_idx]:
                     sampling_idx += 1
-                    yield idx, self.predictor(frame)['instances'].to(self.cpu_device)
+                    instances = self.predictor(frame)['instances'].to(self.cpu_device)
+                    if frame is None:
+                        print(frame)
+                        print(instances)
+                    yield idx, instances
 
             if fails_count != 0:
                 print('Failed to read %d frames.' % fails_count)
