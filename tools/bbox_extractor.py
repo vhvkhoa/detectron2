@@ -100,6 +100,7 @@ class BboxExtractor(object):
             sampling_idx, fails_count = 0, 0
             for idx, frame in enumerate(frame_gen):
                 if frame is None:
+                    print(frame)
                     fails_count += 1
 
                 if sampling_idx < len(sampling_pts) and idx >= sampling_pts[sampling_idx]:
