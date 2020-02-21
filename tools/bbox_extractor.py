@@ -104,10 +104,13 @@ class BboxExtractor(object):
 
                 if sampling_idx < len(sampling_pts) and idx >= sampling_pts[sampling_idx]:
                     sampling_idx += 1
-                    instances = self.predictor(frame)['instances'].to(self.cpu_device)
+
                     if frame is None:
+                        instances = self.predictor(frame)['instances'].to(self.cpu_device)
                         print(frame)
                         print(instances)
+                    else:
+                        instances = self.predictor(frame)['instances'].to(self.cpu_device)
                     yield idx, instances
 
             if fails_count != 0:
