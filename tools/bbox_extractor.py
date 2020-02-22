@@ -55,19 +55,10 @@ class BboxExtractor(object):
             ndarray: BGR visualizations of each video frame.
         """
         target_sampling_rate = self.sampling_rate * fps / self.target_fps
-        try:
-            sampling_pts = torch.arange(
-                target_sampling_rate / 2,
-                num_frames + 1 - target_sampling_rate / 2,
-                target_sampling_rate).tolist()
-        except RuntimeError:
-            print(
-                'Cannot make sampling list.\n\tVideo length: %f frames.\n\tTarget_sampling_rate: %f frames.'
-                % (num_frames, target_sampling_rate))
-            sampling_pts = []
-
-        if target_sampling_rate * len(sampling_pts) < num_frames:
-            sampling_pts.append((target_sampling_rate + num_frames) / 2)
+        sampling_pts = torch.arange(
+            target_sampling_rate / 2,
+            num_frames + 1 - target_sampling_rate / 2,
+            target_sampling_rate).tolist()
 
         frame_gen = self._frame_from_video(video, num_frames)
         if self.parallel:
