@@ -55,6 +55,7 @@ class BboxExtractor(object):
             ndarray: BGR visualizations of each video frame.
         """
         target_sampling_rate = self.sampling_rate * fps / self.target_fps
+        print(target_sampling_rate)
         sampling_pts = torch.arange(
             target_sampling_rate / 2,
             num_frames + 1 - target_sampling_rate / 2,
