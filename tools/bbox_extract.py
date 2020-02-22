@@ -114,7 +114,7 @@ if __name__ == "__main__":
                     continue
                 frame_bboxes.append({'box': box, 'score': score, 'class_id': class_id})
 
-            video_bboxes.append({'idx': idx, 'frame_bboxes': frame_bboxes})
+            video_bboxes.append({'pts': idx / frames_per_second, 'frame_bboxes': frame_bboxes})
 
         video.release()
 
