@@ -33,11 +33,16 @@ def setup_cfg(args):
 
 def get_parser():
     parser = argparse.ArgumentParser(description="Detectron2 demo for builtin models")
-    parser.add_argument("input_dir", help="A list of space separated input videos")
+    parser.add_argument("input_dir", help="A directory contains videos to extract bboxes from.")
     parser.add_argument(
         "output_dir",
-        help="A file or directory to save output visualizations. "
-        "If not given, will show output in an OpenCV window.",
+        help="A directory to save bboxes coordinations."
+    )
+    parser.add_argument(
+        "--input_list",
+        default="",
+        type=str,
+        help="List os input videos to extract bboxes from (Optional)."
     )
     parser.add_argument(
         "--captured_class_ids",
@@ -89,7 +94,19 @@ if __name__ == "__main__":
 
     bbox_extractor = BboxExtractor(cfg, sampling_rate=args.sampling_rate, target_fps=args.target_fps)
 
-    for video_path in tqdm(glob.glob(os.path.join(args.input_dir, '*'))):
+    if os.path.isfile(args.input_list):
+        path_to_videos = []
+        with open(args.input_list, 'r') as f:
+            video_list = json.load(f)
+            for video_name in video_list:
+                video_path = os.path.join(args.input_dir, video_name)
+                if os.path.isfile(video_path):
+                    path_to_videos.append(video_path)
+
+    else:
+        path_to_videos = glob.glob(os.path.join(args.input_dir, '*'))
+
+    for video_path in tqdm(path_to_videos):
         basename = os.path.basename(video_path)
         output_path = os.path.join(args.output_dir, os.path.splitext(basename)[0] + '.json')
         if os.path.exists(output_path):
