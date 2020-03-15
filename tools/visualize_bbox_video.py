@@ -174,6 +174,10 @@ if __name__ == "__main__":
     metadata = MetadataCatalog.get(cfg.DATASETS.TEST[0] if len(cfg.DATASETS.TEST) else "__unused")
     name_to_id = {class_name: i for i, class_name in enumerate(metadata.get('thing_classes', None))}
     captured_ids = list(set(args.captured_class_ids + [name_to_id[class_name] for class_name in args.captured_class_names]))
+    if len(captured_ids):
+        print('Keep class ids: ', captured_ids)
+    else:
+        print('Keep all classes.')
 
     alpha = 0.5
 
