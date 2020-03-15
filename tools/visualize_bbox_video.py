@@ -49,7 +49,6 @@ def _create_text_labels(classes, scores, class_names):
     Returns:
         list[str] or None
     """
-    print(class_names)
     labels = None
     if classes is not None and class_names is not None and len(class_names) > 1:
         labels = [class_names[i] for i in classes]
@@ -171,7 +170,8 @@ if __name__ == "__main__":
     args = get_parser().parse_args()
     cfg = setup_cfg(args)
     metadata = MetadataCatalog.get(cfg.DATASETS.TEST[0] if len(cfg.DATASETS.TEST) else "__unused")
-    print(cfg.DATASETS.TEST[0] if len(cfg.DATASETS.TEST) else "__unused")
+    name_to_id = {class_name: i for i, class_name in enumerate(metadata.get('thing_classes', None))}
+    captured_ids = list(set(args.captured_class_ids + [name_to_id[class_name] for class_name in args.captured_class_names]))
 
     alpha = 0.5
 
@@ -229,20 +229,15 @@ if __name__ == "__main__":
                         scores.append(frame_bbox['score'])
 
                     detected = [
-                        _DetectedInstance(bbox['class_id'], bbox['box'], mask_rle=None, color=None, ttl=8)
-                        for bbox in video_bboxes[bbox_idx]['frame_bboxes']
+                        _DetectedInstance(
+                            bbox['class_id'], bbox['box'],
+                            mask_rle=None, color=None, ttl=8
+                        )
+                        for bbox in video_bboxes[bbox_idx]['frame_bboxes'] if bbox['class_id'] in captured_ids
                     ]
                     colors, old_instances = _assign_colors(detected, old_instances)
 
                     labels = _create_text_labels(classes, scores, metadata.get("thing_classes", None))
-
-                    keep_ids = []
-                    for i, label in enumerate(labels):
-                        if len(args.captured_class_names) > 0 and label.split()[0] in args.captured_class_names:
-                            keep_ids.append(i)
-
-                    labels = [labels[i] for i in keep_ids]
-                    boxes = [boxes[i] for i in keep_ids]
 
                     frame_visualizer.overlay_instances(
                         boxes=boxes,  # boxes are a bit distracting
