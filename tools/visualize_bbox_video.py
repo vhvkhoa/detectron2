@@ -14,6 +14,7 @@ from detectron2.utils.visualizer import Visualizer
 
 import pycocotools.mask as mask_util
 
+
 class _DetectedInstance:
     """
     Used to store data about detected objects in video frame,
@@ -215,7 +216,7 @@ if __name__ == "__main__":
                 frame_visualizer = Visualizer(frame, metadata)
 
                 if bbox_idx < len(video_bboxes) - 1:
-                    start, end = video_bboxes[bbox_idx]['idx_secs'], video_bboxes[bbox_idx + 1]['idx_secs']
+                    start, end = video_bboxes[bbox_idx]['pts'], video_bboxes[bbox_idx + 1]['pts']
                     if frame_idx_secs >= (start + end) / 2:
                         bbox_idx += 1
 
