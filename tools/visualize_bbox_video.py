@@ -49,6 +49,7 @@ def _create_text_labels(classes, scores, class_names):
     Returns:
         list[str] or None
     """
+    print(class_names)
     labels = None
     if classes is not None and class_names is not None and len(class_names) > 1:
         labels = [class_names[i] for i in classes]
@@ -237,7 +238,7 @@ if __name__ == "__main__":
 
                     keep_ids = []
                     for i, label in enumerate(labels):
-                        if label.split()[0] == 'person':
+                        if len(args.captured_class_names) > 0 and label.split()[0] in args.captured_class_names:
                             keep_ids.append(i)
 
                     labels = [labels[i] for i in keep_ids]
