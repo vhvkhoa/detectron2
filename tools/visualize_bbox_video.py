@@ -150,11 +150,13 @@ def get_parser():
     parser.add_argument(
         "--captured_class_ids",
         nargs='+',
+        default=[],
         help="Class ids list to be caputred, ignore those that are not in this list, must be at the same length as captured_class_names."
     )
     parser.add_argument(
         "--captured_class_names",
         nargs='+',
+        default=[],
         help="Class names list corresponding with captured class ids, must be at the same length as captured_class_ids."
     )
     parser.add_argument(
