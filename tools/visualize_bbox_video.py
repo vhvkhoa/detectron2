@@ -71,19 +71,12 @@ def _assign_colors(instances, old_instances):
 
     # Compute iou with either boxes or masks:
     is_crowd = np.zeros((len(instances),), dtype=np.bool)
-    if instances[0].bbox is None:
-        assert instances[0].mask_rle is not None
-        # use mask iou only when box iou is None
-        # because box seems good enough
-        rles_old = [x.mask_rle for x in old_instances]
-        rles_new = [x.mask_rle for x in instances]
-        ious = mask_util.iou(rles_old, rles_new, is_crowd)
-        threshold = 0.5
-    else:
-        boxes_old = [x.bbox for x in old_instances]
-        boxes_new = [x.bbox for x in instances]
-        ious = mask_util.iou(boxes_old, boxes_new, is_crowd)
-        threshold = 0.6
+
+    boxes_old = [x.bbox for x in old_instances]
+    boxes_new = [x.bbox for x in instances]
+    ious = mask_util.iou(boxes_old, boxes_new, is_crowd)
+    threshold = 0.6
+
     if len(ious) == 0:
         ious = np.zeros((len(old_instances), len(instances)), dtype="float32")
 
