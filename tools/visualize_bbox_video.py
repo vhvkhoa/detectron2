@@ -187,6 +187,8 @@ if __name__ == "__main__":
             width = int(video_input.get(cv2.CAP_PROP_FRAME_WIDTH))
             height = int(video_input.get(cv2.CAP_PROP_FRAME_HEIGHT))
             frames_per_second = video_input.get(cv2.CAP_PROP_FPS)
+            print(frames_per_second)
+            continue
             num_frames = int(video_input.get(cv2.CAP_PROP_FRAME_COUNT))
             secs_per_frame = 1. / frames_per_second
 
