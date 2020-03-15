@@ -230,18 +230,17 @@ if __name__ == "__main__":
                 if len(video_bboxes[bbox_idx]['frame_bboxes']) > 0:
                     boxes, classes, scores = [], [], []
                     for frame_bbox in video_bboxes[bbox_idx]['frame_bboxes']:
-                        boxes.append(frame_bbox['box'])
-                        classes.append(frame_bbox['class_id'])
-                        scores.append(frame_bbox['score'])
+                        if len(captured_ids) == 0 or frame_bbox['class_id'] in captured_ids:
+                            boxes.append(frame_bbox['box'])
+                            classes.append(frame_bbox['class_id'])
+                            scores.append(frame_bbox['score'])
 
                     detected = [
                         _DetectedInstance(
-                            bbox['class_id'], bbox['box'],
+                            class_id, box,
                             mask_rle=None, color=None, ttl=8
                         )
-                        for bbox in video_bboxes[bbox_idx]['frame_bboxes'] if (
-                            len(captured_ids) == 0 or bbox['class_id'] in captured_ids
-                        )
+                        for class_id, box in zip(classes, boxes)
                     ]
                     colors, old_instances = _assign_colors(detected, old_instances)
 
