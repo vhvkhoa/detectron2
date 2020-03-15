@@ -236,7 +236,7 @@ if __name__ == "__main__":
                             mask_rle=None, color=None, ttl=8
                         )
                         for bbox in video_bboxes[bbox_idx]['frame_bboxes'] if (
-                            len(captured_ids) > 0 and bbox['class_id'] in captured_ids
+                            len(captured_ids) == 0 or bbox['class_id'] in captured_ids
                         )
                     ]
                     colors, old_instances = _assign_colors(detected, old_instances)
