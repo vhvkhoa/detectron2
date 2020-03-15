@@ -227,7 +227,7 @@ if __name__ == "__main__":
                             boxes.append(frame_bbox['box'])
                             classes.append(frame_bbox['class_id'])
                             scores.append(frame_bbox['score'])
-                    
+
                     if len(boxes) == 0:
                         continue
 
