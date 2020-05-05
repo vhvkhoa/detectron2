@@ -7,9 +7,6 @@ import cv2
 import json
 import glob
 
-from tqdm import tqdm
-import torch
-
 from detectron2.config import get_cfg
 from detectron2.utils.logger import setup_logger
 from bbox_extractor import BboxExtractor
