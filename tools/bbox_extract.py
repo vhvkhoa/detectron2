@@ -142,3 +142,6 @@ if __name__ == "__main__":
                 'secs_per_frame': 1. / frames_per_second,
                 'video_bboxes': video_bboxes
             }, f)
+
+        if len(video_bboxes) != 100:
+            print('Warning! Number of frames processed does not equal to 100.')
