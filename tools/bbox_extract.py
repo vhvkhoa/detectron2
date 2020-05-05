@@ -7,6 +7,8 @@ import cv2
 import json
 import glob
 
+from tqdm import tqdm
+
 from detectron2.config import get_cfg
 from detectron2.utils.logger import setup_logger
 from bbox_extractor import BboxExtractor
@@ -103,7 +105,7 @@ if __name__ == "__main__":
     else:
         path_to_videos = glob.glob(os.path.join(args.input_dir, '*'))
 
-    for video_idx, video_path in enumerate(path_to_videos):
+    for video_path in tqdm(path_to_videos):
         basename = os.path.basename(video_path)
         output_path = os.path.join(args.output_dir, os.path.splitext(basename)[0] + '.json')
         if os.path.exists(output_path):
@@ -140,9 +142,3 @@ if __name__ == "__main__":
                 'secs_per_frame': 1. / frames_per_second,
                 'video_bboxes': video_bboxes
             }, f)
-        print('Processed video %s. Number of frames: %d. %d/%d' % (
-            basename,
-            len(video_bboxes),
-            video_idx + 1,
-            len(path_to_videos)
-        ))
