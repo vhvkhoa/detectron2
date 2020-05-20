@@ -224,7 +224,7 @@ if __name__ == "__main__":
                 if len(video_bboxes[bbox_idx]['frame_bboxes']) > 0:
                     boxes, classes, scores = [], [], []
                     for frame_bbox in video_bboxes[bbox_idx]['frame_bboxes']:
-                        if len(captured_ids) == 0 or frame_bbox['class_id'] in captured_ids:
+                        if frame_bbox['score'] >= 0.5 and (len(captured_ids) == 0 or frame_bbox['class_id'] in captured_ids):
                             boxes.append(frame_bbox['box'])
                             classes.append(frame_bbox['class_id'])
                             scores.append(frame_bbox['score'])
