@@ -228,26 +228,24 @@ if __name__ == "__main__":
                             classes.append(frame_bbox['class_id'])
                             scores.append(frame_bbox['score'])
 
-                    if len(boxes) == 0:
-                        continue
+                    if len(boxes) > 0:
+                        detected = [
+                            _DetectedInstance(
+                                class_id, box,
+                                mask_rle=None, color=None, ttl=8
+                            )
+                            for class_id, box in zip(classes, boxes)
+                        ]
+                        colors, old_instances = _assign_colors(detected, old_instances)
 
-                    detected = [
-                        _DetectedInstance(
-                            class_id, box,
-                            mask_rle=None, color=None, ttl=8
+                        labels = _create_text_labels(classes, scores, metadata.get("thing_classes", None))
+
+                        frame_visualizer.overlay_instances(
+                            boxes=boxes,  # boxes are a bit distracting
+                            labels=labels,
+                            assigned_colors=colors,
+                            alpha=alpha,
                         )
-                        for class_id, box in zip(classes, boxes)
-                    ]
-                    colors, old_instances = _assign_colors(detected, old_instances)
-
-                    labels = _create_text_labels(classes, scores, metadata.get("thing_classes", None))
-
-                    frame_visualizer.overlay_instances(
-                        boxes=boxes,  # boxes are a bit distracting
-                        labels=labels,
-                        assigned_colors=colors,
-                        alpha=alpha,
-                    )
 
                 vis_frame = cv2.cvtColor(frame_visualizer.output.get_image(), cv2.COLOR_RGB2BGR)
                 video_output.write(vis_frame)
