@@ -75,6 +75,13 @@ def get_parser():
         help="Target FPS to extract bboxes",
     )
     parser.add_argument(
+        "--target-frames",
+        dest="target_fps",
+        type=int,
+        default=100,
+        help="Target FPS to extract bboxes",
+    )
+    parser.add_argument(
         "--opts",
         help="Modify config options using the command-line 'KEY VALUE' pairs",
         default=[],
@@ -143,5 +150,5 @@ if __name__ == "__main__":
                 'video_bboxes': video_bboxes
             }, f)
 
-        if len(video_bboxes) != 100:
+        if len(video_bboxes) != args.target_frames:
             print('Warning! Number of frames processed does not equal to 100.')
