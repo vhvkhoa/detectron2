@@ -76,10 +76,10 @@ def get_parser():
     )
     parser.add_argument(
         "--target-frames",
-        dest="target_fps",
+        dest="target_frames",
         type=int,
         default=100,
-        help="Target FPS to extract bboxes",
+        help="Target frames to extract",
     )
     parser.add_argument(
         "--opts",
