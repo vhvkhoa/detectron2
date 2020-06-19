@@ -140,6 +140,7 @@ if __name__ == "__main__":
             video_bboxes.append({'pts': idx / frames_per_second, 'frame_bboxes': frame_bboxes})
 
         video.release()
+        print(video_bboxes[0]['pts'])
 
         if not os.path.isdir(args.output_dir):
             os.makedirs(args.output_dir)
