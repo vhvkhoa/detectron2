@@ -59,6 +59,8 @@ class BboxExtractor(object):
             target_sampling_rate / 2,
             num_frames,
             target_sampling_rate).tolist()
+        print(target_sampling_rate)
+        print(sampling_pts)
 
         frame_gen = self._frame_from_video(video, num_frames)
         if self.parallel:
