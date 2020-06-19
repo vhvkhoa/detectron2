@@ -123,6 +123,7 @@ if __name__ == "__main__":
         height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
         frames_per_second = video.get(cv2.CAP_PROP_FPS)
         num_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
+        print(num_frames, frames_per_second)
 
         video_bboxes = []
         for idx, frame_preds in bbox_extractor.run_on_video(video, num_frames, frames_per_second):
@@ -151,4 +152,4 @@ if __name__ == "__main__":
             }, f)
 
         if len(video_bboxes) != args.target_frames:
-            print('Warning! Number of frames processed does not equal to 100.')
+            print('Warning! Number of frames processed does not equal to %d.' % args.target_frames)
